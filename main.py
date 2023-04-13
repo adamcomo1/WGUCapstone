@@ -4,6 +4,9 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 import difflib
 from fuzzywuzzy import process
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
 
 # Load the dataset
 df = pd.read_csv('song_data.csv')
@@ -40,7 +43,26 @@ knn.fit(X_scaled_df)
 # Get the nearest neighbors for each point in the test set
 neighbors = knn.kneighbors(X_test)
 # Prints the song list
-print(y)
+# print(y)
+
+# Function for generating feature distributions via plot histograms for each audio feature
+"""
+for feature in X.columns:
+    sns.histplot(data=df, x=feature, kde=True)
+    plt.title(f'{feature} distribution')
+    plt.show()
+"""
+
+# Below code is used to generate a correlation matrix
+# calculates the correlation matrix for the features
+"""corr_matrix = X.corr()
+
+# plots the heatmap
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
+plt.title('Correlation Matrix of Audio Features')
+plt.show()
+"""
 
 
 def recommend_songs(songs_name, data=df, X_data=X_scaled_df, knn_model=knn, n_recommendations=5):
@@ -77,20 +99,26 @@ def find_closest_song(query, data=df, threshold=70):
         return None
 
 
-# song_name = input("Please enter a song name: ")
-# print(recommend_songs(song_name))
-# Get the user's input
-user_query = input("Please enter a song name: ")
+print("Welcome to our music recommendation system!\nWhen you enter a song, our system will generate recommendations "
+      "based on that song! Our model works different from others as Genre is not taken into account, "
+      "allowing you to discover music in a new way!\n\n ")
+# Get the user's input and run the script in a loop
+while True:
+    user_query = input("Please enter a song name or type 'quit' to exit: ")
 
-# Find the closest matching song name in the dataset
-closest_song = find_closest_song(user_query)
+    # Break the loop if the user types 'quit'
+    if user_query.lower() == 'quit':
+        break
 
-# Check if a match was found
-if closest_song is not None:
-    print(f"Found a matching song: {closest_song}")
-    # Call the recommend_songs() function with the closest matching song
-    recommendations = recommend_songs(closest_song)
-    print("Recommended songs:")
-    print(recommendations)
-else:
-    print("No matching song found.")
+    # Find the closest matching song name in the dataset
+    closest_song = find_closest_song(user_query)
+
+    # Check if a match was found
+    if closest_song is not None:
+        print(f"Found a matching song: {closest_song}")
+        # Call the recommend_songs() function with the closest matching song
+        recommendations = recommend_songs(closest_song)
+        print("Recommended songs:")
+        print(recommendations)
+    else:
+        print("No matching song found.")
